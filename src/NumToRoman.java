@@ -15,13 +15,8 @@ public class NumToRoman {
         map.put(40, "XL");
         map.put(10, "X");
         map.put(9, "IX");
-        map.put(8, "VIII");
-        map.put(7, "VII");
-        map.put(6, "VI");
         map.put(5, "V");
         map.put(4, "IV");
-        map.put(3, "III");
-        map.put(2, "II");
         map.put(1, "I");
     }
 
@@ -29,72 +24,53 @@ public class NumToRoman {
      * @param int num
      * @return Roman numeralString
      */
-    public String toRoman(int num) {
-        int x = num;
-        StringBuilder romanBuilder = new StringBuilder("");
+    public String toRoman(int x) {
+        StringBuilder romanBuilder = new StringBuilder();
 
         if (x < 0) {
             romanBuilder.append('-');
             x = -x;
         }
-        while (x >= 1000) {
-            romanBuilder.append('M');
-            x -= 1000;
-        }
-        while (x >= 500) {
-            if (x / 100 == 9) {
-                romanBuilder.append("CM");
-                x -= 900;
-                break;
-            }
-            romanBuilder.append('D');
-            x -= 500;
-        }
-        while (x >= 100) {
-            if (x / 100 == 4) {
-                romanBuilder.append("CD");
-                x -= 400;
-                break;
-            }
-            romanBuilder.append('C');
-            x -= 100;
-        }
-        while (x >= 50) {
-            if (x / 10 == 9) {
-                romanBuilder.append("XC");
-                x -= 90;
-                break;
-            }
-            romanBuilder.append('L');
-            x -= 50;
-        }
-        while (x >= 10) {
-            if (x / 10 == 4) {
-                romanBuilder.append("XL");
-                x -= 40;
-                break;
-            }
-            romanBuilder.append('X');
-            x -= 10;
-        }
-        if (x >= 5) {
-            if (x == 9) {
-                romanBuilder.append("IX");
-                x = 0;
-            } else {
-                romanBuilder.append('V');
-                x -= 5;
-            }
-        }
-        if (x == 4)
-            romanBuilder.append("IV");
-        else {
-            while (x > 0) {
-                romanBuilder.append('I');
-                x--;
-            }
-        }
+        x = buildRoman(romanBuilder, x, 1000, 100);
+        // Fix 1990 -> MDCCCXC with second call to recognize 1000
+        x = buildRoman(romanBuilder, x, 1000, 100);
+        x = buildRoman(romanBuilder, x, 500, 100);
+        x = buildRoman(romanBuilder, x, 100, 10);
+        // Fix 190 -> CLXXXX with second call to recognize 100
+        x = buildRoman(romanBuilder, x, 100, 10);
+        x = buildRoman(romanBuilder, x, 50, 10);
+        x = buildRoman(romanBuilder, x, 10, 1);
+        // Fix 9 -> VIIII with second call to recognize 10
+        x = buildRoman(romanBuilder, x, 10, 1);
+        x = buildRoman(romanBuilder, x, 5, 1);
+        x = buildRoman(romanBuilder, x, 1, 0);
+
         return romanBuilder.toString();
+    }
+
+    /**
+     * 
+     * @param rb StringBuilder to use
+     * @param num int being converted
+     * @param romanUnit int 1000, 500, 100, 50, 10, 5, 1
+     * @param z int checks for special rule in play
+     */
+    private int buildRoman(StringBuilder rb, int num, int romanUnit, int z) {
+        int x = romanUnit - z;
+        // number must be at least the unit size minus z-factor
+        if (num < x)
+            return num;
+        // handle special rule in effect
+        if (num < romanUnit || num == x) {
+            rb.append(map.get(x));
+            return num - x;
+        }
+        // otherwise loop appends symbols
+        while (num >= romanUnit) {
+            rb.append(map.get(romanUnit));
+            num -= romanUnit;
+        }
+        return num;
     }
 }
 

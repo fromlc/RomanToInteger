@@ -9,8 +9,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         // app banner
-        System.out.print("\nInteger to Roman Numeral Converter");
-
+        System.out.print("\nInteger to Roman Numeral Converter\n");
 
         // user input loop
         boolean keepGoing = true;
