@@ -33,6 +33,10 @@ public class NumToRoman {
         int x = num;
         StringBuilder romanBuilder = new StringBuilder("");
 
+        if (x < 0) {
+            romanBuilder.append('-');
+            x = -x;
+        }
         while (x >= 1000) {
             romanBuilder.append('M');
             x -= 1000;
