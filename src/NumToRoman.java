@@ -118,8 +118,8 @@ public class NumToRoman {
         // number must be at least big enough to trigger a special rule
         if (num < x)
             return num;
-        // handle special rule in effect
-        if (num < romanUnit || num == x) {
+        // handle special rule
+        if (num < romanUnit) {
             romanBuilder.append(map.get(x));
             return num - x;
         }
