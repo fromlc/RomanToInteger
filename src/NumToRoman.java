@@ -1,6 +1,7 @@
 import java.util.HashMap;
 
 public class NumToRoman {
+    private static Integer[] units = {1000, 500, 100, 50, 10, 5, 1};
     private HashMap<Integer, String> map;
     private static HashMap<Integer, Integer> specialMap;
     private String romanNumeral;
@@ -10,6 +11,7 @@ public class NumToRoman {
         number = 0; // last number converted
         romanNumeral = ""; // last conversion, empty to start
 
+        // determines special rule in effect (4 -> IV, 9 -> IX, etc.)
         specialMap = new HashMap<>();
         specialMap.put(1000, 100);
         specialMap.put(500, 100);
@@ -19,6 +21,7 @@ public class NumToRoman {
         specialMap.put(5, 1);
         specialMap.put(1, 0);
 
+        // partial result Strings
         map = new HashMap<>();
         map.put(1000, "M"); // 1000 -> M
         map.put(900, "CM"); // special rule: 900 -> CM
@@ -68,20 +71,34 @@ public class NumToRoman {
             romanBuilder.append('-');
             x = -x;
         }
-        // last param indicates special rule for
-        x = buildRoman(romanBuilder, x, 1000);
-        // Fix 1990 -> MDCCCXC with second call to recognize 1000
-        x = buildRoman(romanBuilder, x, 1000);
-        // Fix 190 -> CLXXXX with second call to recognize 100
-        x = buildRoman(romanBuilder, x, 500);
-        x = buildRoman(romanBuilder, x, 100);
-        x = buildRoman(romanBuilder, x, 100);
-        x = buildRoman(romanBuilder, x, 50);
-        x = buildRoman(romanBuilder, x, 10);
-        // Fix 9 -> VIIII with second call to recognize 10
-        x = buildRoman(romanBuilder, x, 10);
-        x = buildRoman(romanBuilder, x, 5);
-        x = buildRoman(romanBuilder, x, 1);
+
+        // old school
+        // x = buildRoman(romanBuilder, x, 1000);
+        // // Fix 1990 -> MDCCCXC with second call to recognize 1000
+        // x = buildRoman(romanBuilder, x, 1000);
+        // // Fix 190 -> CLXXXX with second call to recognize 100
+        // x = buildRoman(romanBuilder, x, 500);
+        // x = buildRoman(romanBuilder, x, 100);
+        // x = buildRoman(romanBuilder, x, 100);
+        // x = buildRoman(romanBuilder, x, 50);
+        // x = buildRoman(romanBuilder, x, 10);
+        // // Fix 9 -> VIIII with second call to recognize 10
+        // x = buildRoman(romanBuilder, x, 10);
+        // x = buildRoman(romanBuilder, x, 5);
+        // x = buildRoman(romanBuilder, x, 1);
+
+        for (Integer unit : units) {
+            // 2 calls for each unit value to handle special rules
+            x = buildRoman(romanBuilder, x, unit);
+            x = buildRoman(romanBuilder, x, unit);
+        }
+
+        // TODO why not simplify by traversing specialMap instead?
+        // for (Map.Entry<Integer, Integer> set : specialMap.entrySet()) {
+        // // 2 calls to handle special rules
+        // x = buildRoman(romanBuilder, x, set.getKey());
+        // x = buildRoman(romanBuilder, x, set.getKey());
+        // }
 
         this.romanNumeral = romanBuilder.toString();
         return this.romanNumeral;
@@ -96,7 +113,7 @@ public class NumToRoman {
      */
     private int buildRoman(StringBuilder rb, int num, int romanUnit) {
         int x = romanUnit - specialMap.get(romanUnit);
-        // number must be at least enough to trigger a special rule
+        // number must be at least big enough to trigger a special rule
         if (num < x)
             return num;
         // handle special rule in effect
@@ -105,8 +122,9 @@ public class NumToRoman {
             return num - x;
         }
         // otherwise loop appends symbols
+        String symbol = map.get(romanUnit);
         while (num >= romanUnit) {
-            rb.append(map.get(romanUnit));
+            rb.append(symbol);
             num -= romanUnit;
         }
         return num;
